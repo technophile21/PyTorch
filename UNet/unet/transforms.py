@@ -31,7 +31,7 @@ def colormap(n):
 
     return cmap
 
-class Relabel:
+class ReLabel:
 
     def __init__(self, olabel, nlabel):
         self.olabel = olabel

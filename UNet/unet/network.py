@@ -86,11 +86,13 @@ class DecoderStack(nn.Module):
 
 
 class UNet(nn.Module):
-    def __init__(self, in_shape):
+    def __init__(self, in_shape, num_classes):
         super(UNet, self).__init__()
 
         channels, width, height = in_shape
 
+        self.num_classes = num_classes
+        
         self.enc1 = EncoderStack(3, 64, 3)
         self.enc2 = EncoderStack(64, 128, 3)
         self.enc3 = EncoderStack(128, 256, 3)
@@ -113,7 +115,7 @@ class UNet(nn.Module):
         self.dec3 = DecoderStack(256, 128, 3)
         self.dec4 = DecoderStack(128, 64, 3)
 
-        self.conv = nn.Conv2d(64, 2, 1)
+        self.conv = nn.Conv2d(64, self.num_classes, 1)
 
     def forward(self, inp):
         x, enc_saved1 = self.enc1(inp)

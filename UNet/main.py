@@ -38,7 +38,8 @@ image_transforms = transforms.Compose([transforms.Scale((572,572)),
                                        transforms.Normalize([.485, .456, .406], [.229, .224, .225])
                                       ])
 label_transforms = transforms.Compose([transforms.Scale((388, 388)),
-                                       unet_transforms.ToLabel()
+                                       unet_transforms.ToLabel(),
+                                       unet_transforms.ReLabel(255, 21)
                                       ])
 
 dataset = VOC2012Dataset(data_root_path, image_transforms, label_transforms)
@@ -93,7 +94,7 @@ class CrossEntropyLoss2d(nn.Module):
 def train(args, model):
     model.train()
     
-    weight = tc.ones(2)
+    weight = tc.ones(args['num_class'])
     weight[0] = 0
     
     optimizer = optim.SGD(params=net.parameters(), lr=0.01, momentum=0.99)
@@ -143,9 +144,9 @@ def evaluate(args, model):
 
 # In[ ]:
 
-
-net = UNet((3, 572, 572))
-args = dict(steps_loss=1, steps_save=500, num_epochs=1)
+#For PASCAL VOC2012 dataset we have 20 classes of objects + 1 for unlabelled (0 index) + 1 for background (255 index)
+args = dict(num_class=22, steps_loss=1, steps_save=500, num_epochs=1)
+net = UNet((3, 572, 572), args['num_class'])
 train(args, net)
 
 
