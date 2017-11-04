@@ -11,7 +11,6 @@ from __future__ import print_function
 
 
 import torch as tc
-import torchvision as tcv
 import torch.optim as optim
 import torch.nn as nn
 import torch.nn.functional as F
@@ -38,7 +37,7 @@ image_transforms = transforms.Compose([transforms.Scale((572,572)),
                                        transforms.ToTensor(),
                                        transforms.Normalize([.485, .456, .406], [.229, .224, .225])
                                       ])
-label_transforms = transforms.Compose([transforms.Scale(572),
+label_transforms = transforms.Compose([transforms.Scale((388, 388)),
                                        unet_transforms.ToLabel()
                                       ])
 
@@ -76,6 +75,8 @@ class CrossEntropyLoss2d(nn.Module):
         self.loss = nn.NLLLoss2d(weight)
 
     def forward(self, outputs, targets):
+        print("Output Size: {}".format(outputs.size()))
+        print("Traget size: {}".format(targets.size()))
         return self.loss(F.log_softmax(outputs), targets)
     
 
@@ -114,6 +115,8 @@ def train(args, model):
             
             epoch_loss.append(loss.data[0])
             
+            print("epoch loss: {}".format(epoch_loss))
+            
             if args['steps_loss'] > 0 and step % args['steps_loss'] == 0:
                 average = sum(epoch_loss) / len(epoch_loss)
                 print('loss: {average} (epoch: {epoch}, step: {step})')
@@ -142,7 +145,7 @@ def evaluate(args, model):
 
 
 net = UNet((3, 572, 572))
-args = dict(steps_loss=1, steps_save=500, num_epochs=2)
+args = dict(steps_loss=1, steps_save=500, num_epochs=1)
 train(args, net)
 
 

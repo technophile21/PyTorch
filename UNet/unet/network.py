@@ -45,9 +45,8 @@ class EncoderStack(nn.Module):
 class DecoderStack(nn.Module):
     def __init__(self, in_ch, out_ch, kernel_size, upsample_size=None, padding=0, stride=1):
         super(DecoderStack, self).__init__()
-
+        
         self.upsample = nn.Upsample(upsample_size, scale_factor=2, mode='bilinear')
-        #Padding by 1 to maintain the upsampled size (not mentioned in paper explicitly but arch. figure says otherwise)
         self.deconv = nn.ConvTranspose2d(in_ch, out_ch, 2, stride=2)
         self.conv1 = nn.Conv2d(in_ch, out_ch, kernel_size, stride, padding)
         self.conv2 = nn.Conv2d(out_ch, out_ch, kernel_size, stride, padding)
@@ -71,9 +70,12 @@ class DecoderStack(nn.Module):
 
     def forward(self, inp, bypass):
         print("Dec input: {}".format(inp.size()))
+        #Upsample doesn't seem necessary as we have stride = 2 for up conv 
+        '''
         x = self.upsample(inp)
         print("Dec upsample: {}".format(x.size()))
-        x = self.deconv(x)
+        '''
+        x = self.deconv(inp)
         print("Dec deconv: {}".format(x.size()))
         x = self._crop_concat(x, bypass)
         print("Dec concat: {}".format(x.size()))
@@ -134,14 +136,6 @@ class UNet(nn.Module):
         print("Final: {}".format(x.size()))
         return x
 
-
-# In[9]:
-
-
-net = UNet((3, 572, 572))
-
-
-# In[ ]:
 
 
 
